@@ -3,7 +3,6 @@ package ishell
 import (
 	"bytes"
 	"fmt"
-	"sort"
 	"text/tabwriter"
 )
 
@@ -27,7 +26,8 @@ type Cmd struct {
 	Completer func(args []string) []string
 
 	// subcommands.
-	children map[string]*Cmd
+	children      map[string]*Cmd
+	childrenSlice []string
 }
 
 // AddCmd adds cmd as a subcommand.
@@ -36,6 +36,7 @@ func (c *Cmd) AddCmd(cmd *Cmd) {
 		c.children = make(map[string]*Cmd)
 	}
 	c.children[cmd.Name] = cmd
+	c.childrenSlice = append(c.childrenSlice, cmd.Name)
 }
 
 // DeleteCmd deletes cmd from subcommands.
@@ -46,10 +47,10 @@ func (c *Cmd) DeleteCmd(name string) {
 // Children returns the subcommands of c.
 func (c *Cmd) Children() []*Cmd {
 	var cmds []*Cmd
-	for _, cmd := range c.children {
-		cmds = append(cmds, cmd)
+	for _, cmd := range c.childrenSlice {
+		cmds = append(cmds, c.children[cmd])
 	}
-	sort.Sort(cmdSorter(cmds))
+
 	return cmds
 }
 
